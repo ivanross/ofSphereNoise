@@ -95,17 +95,24 @@ vec4 j1=permute(permute(permute(permute(
       }
       
       layout(location=0)in vec3 pos;
+      layout(location=2)in vec3 nrm;
       
       uniform mat4 mvp;
+      uniform mat4 model;
+      uniform mat3 normal;
       uniform float time;
       out float noiseAmt;
+      out vec3 fragNrm;
+      out vec3 fragWorldPos;
       
       void main(){
         float n1=snoise(vec4(pos,time))*.5+.5;
         float n2=snoise(vec4(pos*4,time))*.5+.5;
         float n=mix(n1,n1*n2*n2,.25);
-        float c=mix(.5,1,n);
+        float c=mix(.75,1,n);
         gl_Position=mvp*vec4(pos*c,1.);
         noiseAmt=n;
+        fragNrm=normal*nrm;
+        fragWorldPos=(model*vec4(pos*c,1.)).xyz;
       }
       

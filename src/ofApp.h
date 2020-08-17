@@ -19,6 +19,22 @@ struct CameraData
 	}
 };
 
+struct DirectionalLight
+{
+	glm::vec3 direction;
+	glm::vec3 color;
+	float intensity;
+
+	glm::vec3 getDirection()
+	{
+		return glm::normalize(-1.f * direction);
+	}
+	glm::vec3 getColor()
+	{
+		return intensity * color;
+	}
+};
+
 class ofApp : public ofBaseApp
 {
 
@@ -40,6 +56,7 @@ public:
 	void gotMessage(ofMessage msg);
 
 	CameraData camera;
+	DirectionalLight dirLight;
 
 	ofShader shader;
 	ofMesh sphere;
