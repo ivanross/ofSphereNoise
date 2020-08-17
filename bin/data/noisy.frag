@@ -4,8 +4,10 @@ in float noiseAmt;
 in vec3 fragNrm;
 in vec3 fragWorldPos;
 
+uniform samplerCube envMap;
 uniform vec3 lightDir;
 uniform vec3 lightCol;
+uniform vec3 ambientCol;
 uniform vec3 cameraPos;
 
 out vec4 outCol;
@@ -25,19 +27,23 @@ vec3 noiseColor(float n){
 }
 
 void main(){
-  vec3 col=noiseColor(noiseAmt);
+  
   vec3 nrm=normalize(fragNrm);
   vec3 viewDir=normalize(cameraPos-fragWorldPos);
+  
+  vec3 col=noiseColor(noiseAmt);
+  vec3 envSample=texture(envMap,reflect(-viewDir,nrm)).xyz;
+  col=mix(envSample+col*.5,col,noiseAmt*.3+.7);
   
   float diffuseAmt=max(0,dot(nrm,lightDir));
   vec3 diffuseCol=lightCol*col*diffuseAmt;
   
   vec3 halfVec=normalize(viewDir+lightDir);
   float specularAmt=max(0,dot(halfVec,nrm));
-  specularAmt=pow(specularAmt,36.);
+  specularAmt=pow(specularAmt,128.);
   vec3 specularCol=specularAmt*lightCol;
   
-  vec3 ambientCol=col*.3;
+  vec3 ambient=ambientCol*col;
   
-  outCol=vec4(specularCol+diffuseCol+ambientCol,1);
+  outCol=vec4(specularCol+diffuseCol+ambient,1);
 }

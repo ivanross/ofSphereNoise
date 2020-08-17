@@ -3,36 +3,58 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
+
+  // GL
   ofSetVerticalSync(true);
+  ofDisableArbTex();
   ofEnableDepthTest();
+
+  // CAMERA
 
   camera.position = glm::vec3(0, 0, 2);
   camera.fov = glm::radians(90.f);
 
-  dirLight.direction = glm::vec3(0.5, 0, -1);
+  // LIGHTS
+  ambientLight.color = glm::vec3(1, 1, 1);
+  ambientLight.intensity = 0.6;
+
+  dirLight.direction = glm::vec3(0, -1, -1);
   dirLight.color = glm::vec3(1);
-  dirLight.intensity = .5;
+  dirLight.intensity = 1;
 
   sphere = ofMesh::sphere(1, 250);
 
   shader.load("noisy");
+  skyboxShader.load("skybox");
 
-  ofBackground(0);
+  cubemap.load(
+      "skybox/front.png",
+      "skybox/back.png",
+      "skybox/right.png",
+      "skybox/left.png",
+      "skybox/top.png",
+      "skybox/bottom.png");
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
-  dirLight.direction = glm::vec3(sin(ofGetElapsedTimef()), cos(ofGetElapsedTimef()), -1);
+  camera.angle += ofGetLastFrameTime() * 0.33;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+  drawSkybox();
+  drawNoisySphere();
+}
+
+void ofApp::drawNoisySphere()
+{
   using namespace glm;
 
   float time = ofGetElapsedTimef();
-  mat4 model = rotate(time * 0.2f, vec3(1, 1, 1));
+  mat4 model = mat4();
   mat4 mvp = camera.getProj() * camera.getView() * model;
 
   shader.begin();
@@ -41,10 +63,28 @@ void ofApp::draw()
   shader.setUniformMatrix3f("normal", mat3(transpose(inverse(model))));
   shader.setUniform3f("lightDir", dirLight.getDirection());
   shader.setUniform3f("lightCol", dirLight.getColor());
-  shader.setUniform3f("cameraPos", camera.position);
+  shader.setUniform3f("ambientCol", ambientLight.getColor());
+  shader.setUniform3f("cameraPos", camera.getPosition());
   shader.setUniform1f("time", time);
+  shader.setUniformTexture("envMap", cubemap.getTexture(), 0);
   sphere.draw();
   shader.end();
+}
+
+void ofApp::drawSkybox()
+{
+  using namespace glm;
+
+  mat4 model = translate(camera.getPosition());
+  mat4 mvp = camera.getProj() * camera.getView() * model;
+  glDepthFunc(GL_LEQUAL);
+  skyboxShader.begin();
+  skyboxShader.setUniformMatrix4f("mvp", mvp);
+  skyboxShader.setUniformTexture("envMap", cubemap.getTexture(), 0);
+  skyboxShader.setUniform3f("ambientCol", ambientLight.getColor());
+  skybox.draw();
+  skyboxShader.end();
+  glDepthFunc(GL_LESS);
 }
 
 //--------------------------------------------------------------

@@ -1,10 +1,12 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxEasyCubemap.h"
 
 struct CameraData
 {
 	glm::vec3 position;
+	float angle;
 	float fov;
 
 	glm::mat4 getProj()
@@ -15,7 +17,12 @@ struct CameraData
 
 	glm::mat4 getView()
 	{
-		return glm::translate(-1 * position);
+		return glm::translate(-1 * position) * glm::rotate(-angle, glm::vec3(0, 1, 0));
+	}
+
+	glm::vec3 getPosition()
+	{
+		return glm::mat3(glm::rotate(angle, glm::vec3(0, 1, 0))) * position;
 	}
 };
 
@@ -29,6 +36,17 @@ struct DirectionalLight
 	{
 		return glm::normalize(-1.f * direction);
 	}
+	glm::vec3 getColor()
+	{
+		return intensity * color;
+	}
+};
+
+struct AmbientLight
+{
+	glm::vec3 color;
+	float intensity;
+
 	glm::vec3 getColor()
 	{
 		return intensity * color;
@@ -57,7 +75,15 @@ public:
 
 	CameraData camera;
 	DirectionalLight dirLight;
+	AmbientLight ambientLight;
+
+	ofxEasyCubemap cubemap;
 
 	ofShader shader;
+	ofShader skyboxShader;
 	ofMesh sphere;
+	ofBoxPrimitive skybox;
+
+	void drawNoisySphere();
+	void drawSkybox();
 };
