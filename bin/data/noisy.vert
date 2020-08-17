@@ -4,37 +4,54 @@ layout(location=0)in vec3 pos;
 
 uniform mat4 mvp;
 uniform mat4 model;
+uniform mat3 normal;
 uniform float time;
-
-out VertOut{
-  float noise;
-  vec4 pos;
-  vec3 worldPos;
-}vert;
+out float noiseAmt;
+out vec3 fragNrm;
+out vec3 fragWorldPos;
 
 float snoise(vec4);
 
-void main(){
-  float n1=snoise(vec4(pos,time))*.5+.5;
-  float n2=snoise(vec4(pos*4,time))*.5+.5;
+float noise(vec3 x){
+  float n1=snoise(vec4(x,time))*.5+.5;
+  float n2=snoise(vec4(x*4,time))*.5+.5;
   float n=mix(n1,n1*n2*n2,.25);
-  float c=mix(.75,1,n);
-  vert.pos=mvp*(vec4(pos*c,1.));
-  vert.worldPos=(model*vec4(pos*c,1.)).xyz;
-  vert.noise=n;
+  
+  return n;
 }
 
-/*
--/$$   /$$  /$$$$$$  /$$$$$$  /$$$$$$  /$$$$$$$$
-| $$$ | $$ /$$__  $$|_  $$_/ /$$__  $$| $$_____/
-| $$$$| $$| $$  \ $$  | $$  | $$  \__/| $$
-| $$ $$ $$| $$  | $$  | $$  |  $$$$$$ | $$$$$
-| $$  $$$$| $$  | $$  | $$   \____  $$| $$__/
-| $$\  $$$| $$  | $$  | $$   /$$  \ $$| $$
-| $$ \  $$|  $$$$$$/ /$$$$$$|  $$$$$$/| $$$$$$$$
-|__/  \__/ \______/ |______/ \______/ |________/
+float displacement(float n){
+  return mix(.75,1,n);
+}
 
-*/
+vec3 calc(float phi,float theta){
+  vec3 p=vec3(
+    sin(theta)*cos(phi),
+    sin(theta)*sin(phi),
+    cos(theta)
+  );
+  p=normalize(p);
+  return p*displacement(noise(p));
+}
+
+void main(){
+  
+  float phi=atan(pos.y,pos.x);
+  float theta=acos(pos.z);
+  float e=.005;
+  
+  float n=noise(pos);
+  float d=displacement(n);
+  
+  vec3 P=pos*d;
+  vec3 T=calc(phi+e,theta)-P;
+  vec3 B=calc(phi,theta-e)-P;
+  
+  gl_Position=mvp*vec4(P,1.);
+  noiseAmt=n;
+  fragNrm=normal*normalize(cross(T,B));
+  fragWorldPos=(model*vec4(P,1.)).xyz;
+}
 
 //	Simplex 4D Noise
 //	by Ian McEwan, Ashima Arts

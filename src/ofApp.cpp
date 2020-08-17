@@ -15,7 +15,7 @@ void ofApp::setup()
 
   sphere = ofMesh::sphere(1, 250);
 
-  shader.load("noisy.vert", "noisy.frag", "noisy.geom");
+  shader.load("noisy");
 
   ofBackground(0);
 }
