@@ -16,7 +16,7 @@ void ofApp::setup()
 
   // LIGHTS
   ambientLight.color = glm::vec3(1, 1, 1);
-  ambientLight.intensity = 0.6;
+  ambientLight.intensity = 0.85;
 
   dirLight.direction = glm::vec3(0, -1, -1);
   dirLight.color = glm::vec3(1);

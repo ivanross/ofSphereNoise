@@ -1,6 +1,7 @@
 #version 410
 
 in float noiseAmt;
+in float noiseAmt2;
 in vec3 fragNrm;
 in vec3 fragWorldPos;
 
@@ -33,7 +34,9 @@ void main(){
   
   vec3 col=noiseColor(noiseAmt);
   vec3 envSample=texture(envMap,reflect(-viewDir,nrm)).xyz;
-  col=mix(envSample+col*.5,col,noiseAmt*.3+.7);
+  
+  float mixCoeff=smoothstep(-.5,.5,noiseAmt2*2-1)+.5;
+  col=mix(envSample,col,mixCoeff);
   
   float diffuseAmt=max(0,dot(nrm,lightDir));
   vec3 diffuseCol=lightCol*col*diffuseAmt;

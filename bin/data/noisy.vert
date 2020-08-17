@@ -7,6 +7,7 @@ uniform mat4 model;
 uniform mat3 normal;
 uniform float time;
 out float noiseAmt;
+out float noiseAmt2;
 out vec3 fragNrm;
 out vec3 fragWorldPos;
 
@@ -21,7 +22,8 @@ float noise(vec3 x){
 }
 
 float displacement(float n){
-  return mix(.75,1,n);
+  float m=mix(.65,.95,(sin(time)*.5+.5));
+  return mix(m,1,n);
 }
 
 vec3 calc(float phi,float theta){
@@ -49,6 +51,7 @@ void main(){
   
   gl_Position=mvp*vec4(P,1.);
   noiseAmt=n;
+  noiseAmt2=noise(pos*1.5);
   fragNrm=normal*normalize(cross(T,B));
   fragWorldPos=(model*vec4(P,1.)).xyz;
 }
