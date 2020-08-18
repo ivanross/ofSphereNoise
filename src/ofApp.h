@@ -1,30 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "Camera.h"
 #include "ofxEasyCubemap.h"
-
-struct CameraData
-{
-	glm::vec3 position;
-	float angle;
-	float fov;
-
-	glm::mat4 getProj()
-	{
-		float aspect = (float)ofGetWidth() / ofGetHeight();
-		return glm::perspective(fov, aspect, 0.01f, 1000.f);
-	}
-
-	glm::mat4 getView()
-	{
-		return glm::translate(-1 * position) * glm::rotate(-angle, glm::vec3(0, 1, 0));
-	}
-
-	glm::vec3 getPosition()
-	{
-		return glm::mat3(glm::rotate(angle, glm::vec3(0, 1, 0))) * position;
-	}
-};
 
 struct DirectionalLight
 {
@@ -73,7 +51,7 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-	CameraData camera;
+	Camera camera;
 	DirectionalLight dirLight;
 	AmbientLight ambientLight;
 

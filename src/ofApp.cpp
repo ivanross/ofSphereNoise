@@ -13,6 +13,7 @@ void ofApp::setup()
 
   camera.position = glm::vec3(0, 0, 2);
   camera.fov = glm::radians(90.f);
+  camera.speed = 0.005;
 
   // LIGHTS
   ambientLight.color = glm::vec3(1, 1, 1);
@@ -39,7 +40,7 @@ void ofApp::setup()
 //--------------------------------------------------------------
 void ofApp::update()
 {
-  camera.angle += ofGetLastFrameTime() * 0.33;
+  camera.angleY += ofGetLastFrameTime() * 0.03;
 }
 
 //--------------------------------------------------------------
@@ -105,16 +106,22 @@ void ofApp::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button)
 {
+  if (button == 0)
+  {
+    camera.onMove(x, y);
+  }
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button)
 {
+  camera.onMoveStart(x, y);
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button)
 {
+  camera.onMoveEnd();
 }
 
 //--------------------------------------------------------------
