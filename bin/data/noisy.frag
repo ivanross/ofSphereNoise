@@ -33,9 +33,9 @@ void main(){
   vec3 viewDir=normalize(cameraPos-fragWorldPos);
   
   vec3 col=noiseColor(noiseAmt);
-  vec3 envSample=texture(envMap,reflect(-viewDir,nrm)).xyz;
+  vec3 envSample=texture(envMap,reflect(-viewDir,nrm)).rgb;
   
-  float mixCoeff=smoothstep(-.5,.5,noiseAmt2*2-1)+.5;
+  float mixCoeff=smoothstep(.2,.6,noiseAmt2);
   col=mix(envSample,col,mixCoeff);
   
   float diffuseAmt=max(0,dot(nrm,lightDir));
